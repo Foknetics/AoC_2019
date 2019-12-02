@@ -1,21 +1,26 @@
 with open('input.txt') as f:
-    program = f.read()
+    inputs = f.read()
 
-program = [int(instruction) for instruction in program.split(',')]
-program[1] = 12
-program[2] = 2
+memory = [int(value) for value in inputs.split(',')]
+memory[1] = 12
+memory[2] = 2
 
-for index in range(len(program))[::4]:
-    opcode = program[index]
+instruction_pointer = 0
+while True:
+    opcode = memory[instruction_pointer]
     if opcode == 1 or opcode == 2:
-        first_reg = program[index+1]
-        second_reg = program[index+2]
-        third_reg = program[index+3]
+        parm1 = memory[instruction_pointer+1]
+        parm2 = memory[instruction_pointer+2]
+        parm3 = memory[instruction_pointer+3]
         if opcode == 1:
-            program[third_reg] = program[first_reg] + program[second_reg]
+            memory[parm3] = memory[parm1] + memory[parm2]
         else:
-            program[third_reg] = program[first_reg] * program[second_reg]
+            memory[parm3] = memory[parm1] * memory[parm2]
+        instruction_pointer += 4
     elif opcode == 99:
         break
+    else:
+        print(f'Invalid opcode: {opcode} at position: {instruction_pointer}')
+        break
 
-print(f'Final value in register 0: {program[0]}')
+print(f'Final value in register 0: {memory[0]}')
