@@ -60,9 +60,6 @@ def parse_opcode(opcode):
 def n_parms(n, memory, pointer, modes):
     parms = []
     for offset in range(1, n+1):
-        if len(parms) == 2:
-            parms.append(memory[pointer+offset])
-            continue
         if modes[offset-1] == 0:
             parms.append(memory[memory[pointer+offset]])
         else:
@@ -78,11 +75,13 @@ def process(memory):
         opcode = memory[instruction_pointer]
         instruction, modes = parse_opcode(opcode)
         if instruction in math_ops.keys():
+            modes[2] = 1
             parm1, parm2, parm3 = n_parms(3, memory, instruction_pointer, modes)
             memory[parm3] = math_ops[instruction](parm1, parm2)
             instruction_pointer += 4
         elif instruction == 3:
-            parm1 = memory[instruction_pointer+1]
+            modes[0] = 1
+            parm1 = n_parms(1, memory, instruction_pointer, modes)
             memory[parm1] = int(input('Input requested: '))
             instruction_pointer += 2
         elif instruction == 4:
@@ -93,6 +92,7 @@ def process(memory):
             parm1, parm2 = n_parms(2, memory, instruction_pointer, modes)
             instruction_pointer = jump_ops[instruction](instruction_pointer, parm1, parm2)
         elif instruction in equality_ops.keys():
+            modes[2] = 1
             parm1, parm2, parm3 = n_parms(3, memory, instruction_pointer, modes)
             memory[parm3] = equality_ops[instruction](parm1, parm2)
             instruction_pointer += 4
