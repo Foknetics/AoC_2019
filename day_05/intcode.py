@@ -18,6 +18,18 @@ def jump_if_false(pointer, parm1, parm2):
         return pointer+3
 
 
+def less_than(parm1, parm2):
+    if parm1 < parm2:
+        return 1
+    return 0
+
+
+def equal(parm1, parm2):
+    if parm1 == parm2:
+        return 1
+    return 0
+
+
 math_ops = {
     1: add,
     2: mul
@@ -26,6 +38,11 @@ math_ops = {
 jump_ops = {
     5: jump_if_true,
     6: jump_if_false
+}
+
+equality_ops = {
+    7: less_than,
+    8: equal
 }
 
 
@@ -78,7 +95,7 @@ def process(memory):
             else:
                 parm2 = memory[instruction_pointer+2]
             instruction_pointer = jump_ops[instruction](instruction_pointer, parm1, parm2)
-        elif instruction == 7:
+        elif instruction in equality_ops.keys():
             if modes[0] == 0:
                 parm1 = memory[memory[instruction_pointer+1]]
             else:
@@ -89,28 +106,7 @@ def process(memory):
                 parm2 = memory[instruction_pointer+2]
 
             parm3 = memory[instruction_pointer+3]
-
-            if parm1 < parm2:
-                memory[parm3] = 1
-            else:
-                memory[parm3] = 0
-            instruction_pointer += 4
-        elif instruction == 8:
-            if modes[0] == 0:
-                parm1 = memory[memory[instruction_pointer+1]]
-            else:
-                parm1 = memory[instruction_pointer+1]
-            if modes[1] == 0:
-                parm2 = memory[memory[instruction_pointer+2]]
-            else:
-                parm2 = memory[instruction_pointer+2]
-
-            parm3 = memory[instruction_pointer+3]
-
-            if parm1 == parm2:
-                memory[parm3] = 1
-            else:
-                memory[parm3] = 0
+            memory[parm3] = equality_ops[instruction](parm1, parm2)
             instruction_pointer += 4
         elif instruction == 99:
             return memory[0]
