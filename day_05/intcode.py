@@ -4,9 +4,28 @@ from operator import (
 )
 
 
+def jump_if_true(pointer, parm1, parm2):
+    if parm1 != 0:
+        return parm2
+    else:
+        return pointer+3
+
+
+def jump_if_false(pointer, parm1, parm2):
+    if parm1 == 0:
+        return parm2
+    else:
+        return pointer+3
+
+
 math_ops = {
     1: add,
     2: mul
+}
+
+jump_ops = {
+    5: jump_if_true,
+    6: jump_if_false
 }
 
 
@@ -49,7 +68,7 @@ def process(memory):
                 parm1 = memory[instruction_pointer+1]
             print(f'Output: {parm1}')
             instruction_pointer += 2
-        elif instruction == 5:
+        elif instruction in jump_ops.keys():
             if modes[0] == 0:
                 parm1 = memory[memory[instruction_pointer+1]]
             else:
@@ -58,25 +77,7 @@ def process(memory):
                 parm2 = memory[memory[instruction_pointer+2]]
             else:
                 parm2 = memory[instruction_pointer+2]
-
-            if parm1 != 0:
-                instruction_pointer = parm2
-            else:
-                instruction_pointer += 3
-        elif instruction == 6:
-            if modes[0] == 0:
-                parm1 = memory[memory[instruction_pointer+1]]
-            else:
-                parm1 = memory[instruction_pointer+1]
-            if modes[1] == 0:
-                parm2 = memory[memory[instruction_pointer+2]]
-            else:
-                parm2 = memory[instruction_pointer+2]
-
-            if parm1 == 0:
-                instruction_pointer = parm2
-            else:
-                instruction_pointer += 3
+            instruction_pointer = jump_ops[instruction](instruction_pointer, parm1, parm2)
         elif instruction == 7:
             if modes[0] == 0:
                 parm1 = memory[memory[instruction_pointer+1]]
