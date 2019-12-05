@@ -1,12 +1,12 @@
 from operator import (
     add,
-    multiply
+    mul
 )
 
 
 math_ops = {
     1: add,
-    2: multiply
+    2: mul
 }
 
 
