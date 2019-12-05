@@ -24,6 +24,8 @@ def jump_if_false(pointer, parm1, parm2):
         return pointer+3
 
 
+io_ops = [3, 4]
+
 jump_ops = {
     5: jump_if_true,
     6: jump_if_false
@@ -79,14 +81,14 @@ def process(memory):
             parm1, parm2, parm3 = n_parms(3, memory, instruction_pointer, modes)
             memory[parm3] = math_ops[instruction](parm1, parm2)
             instruction_pointer += 4
-        elif instruction == 3:
-            modes[0] = 1
+        elif instruction in io_ops:
+            if instruction == 3:
+                modes[0] = 1
             parm1 = n_parms(1, memory, instruction_pointer, modes)
-            memory[parm1] = int(input('Input requested: '))
-            instruction_pointer += 2
-        elif instruction == 4:
-            parm1 = n_parms(1, memory, instruction_pointer, modes)
-            print(f'Output: {parm1}')
+            if instruction == 3:
+                memory[parm1] = int(input('Input requested: '))
+            else:
+                print(f'Output: {parm1}')
             instruction_pointer += 2
         elif instruction in jump_ops.keys():
             parm1, parm2 = n_parms(2, memory, instruction_pointer, modes)
