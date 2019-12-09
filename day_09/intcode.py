@@ -47,7 +47,8 @@ class Intcode:
         end = False
         while not end:
             end = self.step()
-        return self.outputs
+        if not self.io:
+            return self.outputs
 
     def step(self):
         if not self.memory:
