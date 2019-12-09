@@ -55,16 +55,15 @@ class Intcode:
         operation, modes = self._next_operation()
         self.stack_trace.append(self._log_op(operation, modes))
         if operation in math_ops.keys():
-            if modes[2] != 1:
-                modes[2] = 1
-            parm1, parm2, parm3 = self._n_parms(3, modes)
+            parm1, parm2, parm3 = self._n_parms(3, modes, ['r', 'r', 'w'])
             self.memory[parm3] = math_ops[operation](parm1, parm2)
             self.instruction_pointer += 4
         elif operation in io_ops:
             if operation == 3:
-                if modes[0] != 2:
-                    modes[0] = 1
-            parm1 = self._n_parms(1, modes)
+                types = ['w']
+            else:
+                types = ['r']
+            parm1 = self._n_parms(1, modes, types)
             if operation == 3:
                 if self.io:
                     self.memory[parm1] = int(input('Input requested: '))
@@ -77,16 +76,14 @@ class Intcode:
                     self.outputs.append(parm1)
             self.instruction_pointer += 2
         elif operation in jump_ops.keys():
-            parm1, parm2 = self._n_parms(2, modes)
+            parm1, parm2 = self._n_parms(2, modes, ['r', 'r'])
             self.instruction_pointer = jump_ops[operation](self.instruction_pointer, parm1, parm2)
         elif operation in equality_ops.keys():
-            if modes[2] != 2:
-                modes[2] = 1
-            parm1, parm2, parm3 = self._n_parms(3, modes)
+            parm1, parm2, parm3 = self._n_parms(3, modes, ['r', 'r', 'w'])
             self.memory[parm3] = equality_ops[operation](parm1, parm2)
             self.instruction_pointer += 4
         elif operation == 9:
-            parm1 = self._n_parms(1, modes)
+            parm1 = self._n_parms(1, modes, ['r'])
             self.relative_base += parm1
             self.instruction_pointer += 2
         elif operation == 99:
@@ -101,13 +98,22 @@ class Intcode:
         opcode = str(self.memory[self.instruction_pointer]).rjust(5, '0')
         return int(opcode[-2:]), [int(opcode[2]), int(opcode[1]), int(opcode[0])]
 
-    def _n_parms(self, n, modes):
+    def _n_parms(self, n, modes, types):
         parms = []
         for offset in range(1, n+1):
             if modes[offset-1] == 0:
-                parms.append(self.memory[self.memory[self.instruction_pointer+offset]])
+                if types[offset-1] == 'r':
+                    parms.append(self.memory[self.memory[self.instruction_pointer+offset]])
+                else:
+                    parms.append(self.memory[self.instruction_pointer+offset])
             elif modes[offset-1] == 2:
-                parms.append(self.memory[self.relative_base+self.memory[self.instruction_pointer+offset]])
+                parm_loc = self.instruction_pointer+offset
+                parm = self.memory[parm_loc]
+                position = self.relative_base+parm
+                if types[offset-1] == 'r':
+                    parms.append(self.memory[position])
+                else:
+                    parms.append(position)
             else:
                 parms.append(self.memory[self.instruction_pointer+offset])
         if len(parms) == 1:
