@@ -102,21 +102,21 @@ class Intcode:
     def _n_parms(self, n, modes, types):
         parms = []
         for offset in range(1, n+1):
+            parm_loc = self.instruction_pointer + offset
+            parm = self.memory[parm_loc]
             if modes[offset-1] == 0:
                 if types[offset-1] == 'r':
-                    parms.append(self.memory[self.memory[self.instruction_pointer+offset]])
+                    parms.append(self.memory[parm])
                 else:
-                    parms.append(self.memory[self.instruction_pointer+offset])
+                    parms.append(parm)
             elif modes[offset-1] == 2:
-                parm_loc = self.instruction_pointer+offset
-                parm = self.memory[parm_loc]
                 position = self.relative_base+parm
                 if types[offset-1] == 'r':
                     parms.append(self.memory[position])
                 else:
                     parms.append(position)
             else:
-                parms.append(self.memory[self.instruction_pointer+offset])
+                parms.append(parm)
         if len(parms) == 1:
             return parms[0]
         return parms
