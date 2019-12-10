@@ -64,7 +64,7 @@ for angle in angle_asteroids.keys():
 
 laser_angle = -pi
 for angle in sorted(angle_asteroids.keys()):
-    if angle < -1.5707963267948966 and angle > laser_angle:
+    if angle < -pi/2 and angle > laser_angle:
         laser_angle = angle
 
 destroyed = 0
