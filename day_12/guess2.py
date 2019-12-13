@@ -1,12 +1,28 @@
 from copy import deepcopy
+from math import gcd
 from itertools import combinations
+
+
+def moon_hash(moons, axis):
+    hash_ = []
+    for moon in moons:
+        hash_.append(moon['position'][axis])
+        hash_.append(moon['velocity'][axis])
+    return hash_
+
+
+def least_common_multiple(values):
+    lcm = values[0]
+    for i in values[1:]:
+        lcm = lcm * i // gcd(lcm, i)
+    return lcm
+
 
 with open('input.txt') as f:
     inputs = f.read()
 
 axes = ['x', 'y', 'z']
 moons = []
-match_data = []
 
 for moon_scan in inputs.splitlines():
     moon = {}
@@ -34,15 +50,17 @@ for moon_scan in inputs.splitlines():
         'y': [],
         'z': []
     }
-    match_data.append(match_moon)
 
 og_moons = deepcopy(moons)
 
-steps = 100000
-for _ in range(steps):
-    # Apply gravity to update velocity
-    for moon_a, moon_b in combinations(moons, r=2):
-        for axis in axes:
+step_repeats = {}
+for axis in axes:
+    og_hash = moon_hash(og_moons, axis)
+
+    steps = 0
+    while True:
+        steps += 1
+        for moon_a, moon_b in combinations(moons, r=2):
             if moon_a['position'][axis] < moon_b['position'][axis]:
                 moon_a['velocity'][axis] += 1
                 moon_b['velocity'][axis] -= 1
@@ -50,14 +68,13 @@ for _ in range(steps):
                 moon_a['velocity'][axis] -= 1
                 moon_b['velocity'][axis] += 1
 
-    # Apply velocity
-    for moon in moons:
-        for axis in axes:
+        # Apply velocity
+        for moon in moons:
             moon['position'][axis] += moon['velocity'][axis]
 
-    #print(f'Step {_+1}')
-    for index, moon in enumerate(moons):
-        for value in ['position', 'velocity']:
-            for axis in axes:
-                if og_moons[index][value][axis] == moons[index][value][axis]:
-                    match_data[index][value][axis].append(_)
+        if moon_hash(moons, axis) == og_hash:
+            break
+    step_repeats[axis] = steps
+
+lcm_steps = least_common_multiple([step_repeats[axis] for axis in axes])
+print(f'Positions and Velocities repeat at {lcm_steps}')
