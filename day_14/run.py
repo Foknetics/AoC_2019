@@ -48,3 +48,18 @@ def ore_required(material, amount_needed):
     return ore
 
 print(f'1 FUEL requires {ore_required("FUEL", 1)} ore')
+
+excess = {}
+
+ore_left = 1000000000000
+fuel_produced = 3343000  # Trial and error jump start to speed things up
+
+fuel_cost = ore_required('FUEL', fuel_produced)
+fuel_produced -= 1
+
+while ore_left > fuel_cost:
+    ore_left -= fuel_cost
+    fuel_produced += 1
+    fuel_cost = ore_required('FUEL', 1)
+
+print(f'1 trillion ORE can produce {fuel_produced} FUEL')
